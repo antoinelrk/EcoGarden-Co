@@ -1,0 +1,18 @@
+services:
+  eco_garden_co:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eco_garden_co
+    working_dir: /var/www/symfony
+    volumes:
+      - ./:/var/www/symfony
+    ports:
+      - "8000:8000"
+    networks:
+      - local
+
+networks:
+  local:
+    name: local
+    external: true
