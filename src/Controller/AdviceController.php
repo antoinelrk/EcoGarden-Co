@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class ConseilController extends AbstractController
+final class AdviceController extends AbstractController
 {
-    #[Route('/api/conseils', name: 'app_conseil')]
+    #[Route('/api/advices', name: 'app_advice', methods: ['GET'])]
     public function index(): JsonResponse
     {
         // TODO: Ajouter la logique pour récupérer les conseils
@@ -18,7 +18,7 @@ final class ConseilController extends AbstractController
         return $this->json($conseils, Response::HTTP_OK);
     }
 
-    #[Route('/api/conseils/{id}', name: 'app_conseil_show', requirements: ['id' => '\d+'])]
+    #[Route('/api/advices/{id}', name: 'app_advice_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
         // TODO: Ajouter la logique pour récupérer les conseils
@@ -27,19 +27,19 @@ final class ConseilController extends AbstractController
         return $this->json($conseil, Response::HTTP_OK);
     }
 
-    #[Route('/api/conseils', name: 'app_conseil_create', methods: ['POST'])]
-    public function create(): JsonResponse
+    #[Route('/api/advices', name: 'app_advice_create', methods: ['POST'])]
+    public function store(): JsonResponse
     {
         return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
     }
 
-    #[Route('/api/conseils/{id}', name: 'app_conseil_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
+    #[Route('/api/advices/{id}', name: 'app_advice_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
     public function update(int $id): JsonResponse
     {
         return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
     }
 
-    #[Route('/api/conseils/{id}', name: 'app_conseil_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[Route('/api/advices/{id}', name: 'app_advice_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
