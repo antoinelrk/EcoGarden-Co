@@ -2,23 +2,26 @@
 
 namespace App\Entity;
 
-use App\Repository\ConseilRepository;
+use App\Repository\AdviceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ConseilRepository::class)]
-class Conseil
+#[ORM\Entity(repositoryClass: AdviceRepository::class)]
+class Advice
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $content = null;
+    #[ORM\Column(length: 48)]
+    private ?string $title = null;
 
-    #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $month = null;
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $description = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?array $months = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -31,26 +34,38 @@ class Conseil
         return $this->id;
     }
 
-    public function getContent(): ?string
+    public function getTitle(): ?string
     {
-        return $this->content;
+        return $this->title;
     }
 
-    public function setContent(string $content): static
+    public function setTitle(string $title): static
     {
-        $this->content = $content;
+        $this->title = $title;
 
         return $this;
     }
 
-    public function getMonth(): ?int
+    public function getDescription(): ?string
     {
-        return $this->month;
+        return $this->description;
     }
 
-    public function setMonth(int $month): static
+    public function setDescription(string $description): static
     {
-        $this->month = $month;
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getMonths(): ?array
+    {
+        return $this->months;
+    }
+
+    public function setMonths(?array $months): static
+    {
+        $this->months = $months;
 
         return $this;
     }
