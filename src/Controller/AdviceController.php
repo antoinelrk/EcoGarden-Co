@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Advice;
 use App\Repository\AdviceRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +16,8 @@ final class AdviceController extends AbstractController
 {
     public function __construct(
         private readonly AdviceRepository $adviceRepository,
-        private readonly SerializerInterface $serializer
+        private readonly SerializerInterface $serializer,
+        private readonly EntityManagerInterface $entityManager
     ) {}
 
     /**
@@ -65,6 +67,9 @@ final class AdviceController extends AbstractController
     #[Route('/api/advices/{id}', name: 'app_advice_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(Advice $advice): JsonResponse
     {
-        return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
+        $this->entityManager->remove($advice);
+        $this->entityManager->flush();
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 }
