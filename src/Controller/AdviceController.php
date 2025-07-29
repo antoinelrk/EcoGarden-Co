@@ -2,29 +2,51 @@
 
 namespace App\Controller;
 
+use App\Repository\AdviceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 final class AdviceController extends AbstractController
 {
+    public function __construct(
+        private readonly AdviceRepository $adviceRepository,
+        private readonly SerializerInterface $serializer
+    ) {}
+
+    /**
+     * Returns a list of advices.
+     *
+     * @return JsonResponse
+     *
+     * @throws ExceptionInterface
+     */
     #[Route('/api/advices', name: 'app_advice', methods: ['GET'])]
     public function index(): JsonResponse
     {
-        // TODO: Ajouter la logique pour récupérer les conseils
-        $conseils = [];
+        $advices = $this->serializer->serialize($this->adviceRepository->findAll(), 'json');
 
-        return $this->json($conseils, Response::HTTP_OK);
+        return new JsonResponse($advices, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * Returns a single advice by its ID.
+     *
+     * @param int $id
+     *
+     * @return JsonResponse
+     *
+     * @throws ExceptionInterface
+     */
     #[Route('/api/advices/{id}', name: 'app_advice_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
-        // TODO: Ajouter la logique pour récupérer les conseils
-        $conseil = [];
+        $advice = $this->serializer->serialize($this->adviceRepository->find($id), 'json');
 
-        return $this->json($conseil, Response::HTTP_OK);
+        return new JsonResponse($advice, Response::HTTP_OK, [], true);
     }
 
     #[Route('/api/advices', name: 'app_advice_create', methods: ['POST'])]
