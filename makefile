@@ -8,3 +8,6 @@ schema-update:
 
 make-migration:
 	@docker exec -it eco_garden_co php bin/console make:migration
+
+fixtures-load:
+	@docker exec -it eco_garden_co php bin/console doctrine:fixtures:load
