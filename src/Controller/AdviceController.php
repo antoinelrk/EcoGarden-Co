@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Advice;
 use App\Repository\AdviceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,16 +36,16 @@ final class AdviceController extends AbstractController
     /**
      * Returns a single advice by its ID.
      *
-     * @param int $id
+     * @param Advice $advice
      *
      * @return JsonResponse
      *
      * @throws ExceptionInterface
      */
     #[Route('/api/advices/{id}', name: 'app_advice_show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function show(int $id): JsonResponse
+    public function show(Advice $advice): JsonResponse
     {
-        $advice = $this->serializer->serialize($this->adviceRepository->find($id), 'json');
+        $advice = $this->serializer->serialize($advice, 'json');
 
         return new JsonResponse($advice, Response::HTTP_OK, [], true);
     }
@@ -56,13 +57,13 @@ final class AdviceController extends AbstractController
     }
 
     #[Route('/api/advices/{id}', name: 'app_advice_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
-    public function update(int $id): JsonResponse
+    public function update(Advice $advice): JsonResponse
     {
         return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
     }
 
     #[Route('/api/advices/{id}', name: 'app_advice_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(int $id): JsonResponse
+    public function delete(Advice $advice): JsonResponse
     {
         return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
     }
