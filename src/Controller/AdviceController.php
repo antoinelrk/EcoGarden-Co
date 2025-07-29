@@ -7,6 +7,7 @@ use App\Repository\AdviceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -52,10 +53,28 @@ final class AdviceController extends AbstractController
         return new JsonResponse($advice, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * Creates a new advice
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     *
+     * @throws ExceptionInterface
+     */
     #[Route('/api/advices', name: 'app_advice_create', methods: ['POST'])]
-    public function store(): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
+        $advice = $this->serializer->deserialize($request->getContent(), Advice::class, 'json');
+
+        $advice->setCreatedAt(new \DateTimeImmutable());
+
+        $this->entityManager->persist($advice);
+        $this->entityManager->flush();
+
+        $advice = $this->serializer->serialize($advice, 'json');
+
+        return new JsonResponse($advice, Response::HTTP_CREATED, [], true);
     }
 
     #[Route('/api/advices/{id}', name: 'app_advice_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
