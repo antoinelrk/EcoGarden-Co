@@ -9,5 +9,5 @@
 2. Modifiez les variables d'environnement pour correspondre à votre configuration de base de données.
 
 ```
-// Ajouter la configuration de base après mise à jour du compose.yaml
+DATABASE_URL="postgresql://postgres:P@ss1234@database:5432/eco_garden_co?serverVersion=17&charset=utf8"
 ```
