@@ -28,7 +28,7 @@ final class AdviceController extends AbstractController
      *
      * @throws ExceptionInterface
      */
-    #[Route('/api/advices', name: 'app_advice', methods: ['GET'])]
+    #[Route('/api/conseils', name: 'app_advice', methods: ['GET'])]
     public function index(): JsonResponse
     {
         $advices = $this->serializer->serialize($this->adviceRepository->findAll(), 'json');
@@ -45,7 +45,7 @@ final class AdviceController extends AbstractController
      *
      * @throws ExceptionInterface
      */
-    #[Route('/api/advices/{id}', name: 'app_advice_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route('/api/conseils/{id}', name: 'app_advice_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Advice $advice): JsonResponse
     {
         $advice = $this->serializer->serialize($advice, 'json');
@@ -62,7 +62,7 @@ final class AdviceController extends AbstractController
      *
      * @throws ExceptionInterface
      */
-    #[Route('/api/advices', name: 'app_advice_create', methods: ['POST'])]
+    #[Route('/api/conseils', name: 'app_advice_create', methods: ['POST'])]
     public function store(Request $request): JsonResponse
     {
         $advice = $this->serializer->deserialize($request->getContent(), Advice::class, 'json');
@@ -77,13 +77,13 @@ final class AdviceController extends AbstractController
         return new JsonResponse($advice, Response::HTTP_CREATED, [], true);
     }
 
-    #[Route('/api/advices/{id}', name: 'app_advice_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
+    #[Route('/api/conseils/{id}', name: 'app_advice_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
     public function update(Advice $advice): JsonResponse
     {
         return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
     }
 
-    #[Route('/api/advices/{id}', name: 'app_advice_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[Route('/api/conseils/{id}', name: 'app_advice_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(Advice $advice): JsonResponse
     {
         $this->entityManager->remove($advice);
