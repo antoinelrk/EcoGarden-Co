@@ -41,13 +41,13 @@ class AppFixtures extends Fixture
     {
         $users = [
             [
-                'email' => 'admin@acogarden.co',
+                'email' => 'admin@ecogarden.co',
                 'username' => 'administrator',
                 'password' => 'P@ss1234',
                 'roles' => ['ROLE_ADMIN'],
             ],
             [
-                'email' => 'user@acogarden.co',
+                'email' => 'user@ecogarden.co',
                 'username' => 'user',
                 'password' => 'P@ss1234',
                 'roles' => ['ROLE_USER'],
