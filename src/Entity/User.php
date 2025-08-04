@@ -20,6 +20,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
+    #[ORM\Column(length: 64)]
+    private ?string $username = null;
+
     /**
      * @var list<string> The user roles
      */
@@ -66,6 +69,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUsername(): string
     {
         return $this->getUserIdentifier();
+    }
+
+    /**
+     * Set the username for the user.
+     *
+     * This method is provided for compatibility with UserInterface, but
+     * it is recommended to use getUserIdentifier() instead.
+     *
+     * @see UserInterface
+     */
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
+
+        return $this;
     }
 
     /**
