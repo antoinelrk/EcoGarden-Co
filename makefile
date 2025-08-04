@@ -1,3 +1,9 @@
+refresh:
+	@echo "Refreshing the database..."
+	@make create-db
+	@make schema-update
+	@make fixtures-load
+
 create-db:
 	@echo "Creating databases..."
 	@docker exec -it database psql -U postgres -d postgres -c "DROP DATABASE IF EXISTS eco_garden_co WITH (FORCE);"
