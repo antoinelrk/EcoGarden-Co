@@ -5,15 +5,31 @@ namespace App\Repository;
 use App\Entity\Advice;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @extends ServiceEntityRepository<Advice>
  */
 class AdviceRepository extends ServiceEntityRepository
 {
+    protected const int MAX_PAGE = 10;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Advice::class);
+    }
+
+    public function all(Request $request): array
+    {
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', self::MAX_PAGE);
+
+        return $this->createQueryBuilder('b')
+            ->setFirstResult(($page - 1) * $limit)
+            ->orderBy('b.created_at', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
 //    /**

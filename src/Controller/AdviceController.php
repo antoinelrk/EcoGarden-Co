@@ -29,9 +29,9 @@ final class AdviceController extends AbstractController
      * @throws ExceptionInterface
      */
     #[Route('/api/conseils', name: 'app_advice', methods: ['GET'])]
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $advices = $this->serializer->serialize($this->adviceRepository->findAll(), 'json');
+        $advices = $this->serializer->serialize($this->adviceRepository->all($request), 'json');
 
         return new JsonResponse($advices, Response::HTTP_OK, [], true);
     }
