@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AdviceRepository extends ServiceEntityRepository
 {
-    protected const int MAX_PAGE = 10;
+    public const int MAX_PAGE = 10;
 
     public function __construct(ManagerRegistry $registry)
     {
