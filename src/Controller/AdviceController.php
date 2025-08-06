@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Advice;
 use App\Repository\AdviceRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 final class AdviceController extends AbstractController
 {
@@ -24,14 +27,25 @@ final class AdviceController extends AbstractController
     /**
      * Returns a list of advices.
      *
+     * @param Request $request
+     * @param TagAwareCacheInterface $tagAwareCache
+     *
      * @return JsonResponse
      *
      * @throws ExceptionInterface
+     * @throws InvalidArgumentException
      */
     #[Route('/api/conseils', name: 'app_advice', methods: ['GET'])]
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, TagAwareCacheInterface $tagAwareCache): JsonResponse
     {
-        $advices = $this->serializer->serialize($this->adviceRepository->all($request), 'json');
+        $cacheId = 'advice_index_' . $request->get('page', 1) . '_' . $request->get('limit', AdviceRepository::MAX_PAGE);
+
+        $collect = $tagAwareCache->get($cacheId, function (ItemInterface $item) use ($request) {
+            $item->tag('advice_index');
+            return $this->adviceRepository->all($request);
+        });
+
+        $advices = $this->serializer->serialize($collect, 'json');
 
         return new JsonResponse($advices, Response::HTTP_OK, [], true);
     }
