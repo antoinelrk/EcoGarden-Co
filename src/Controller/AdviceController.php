@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Advice;
+use App\Enums\Serializer\AdviceEnum;
 use App\Repository\AdviceRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\CacheException;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,31 +23,33 @@ final class AdviceController extends AbstractController
     public function __construct(
         private readonly AdviceRepository $adviceRepository,
         private readonly SerializerInterface $serializer,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        protected TagAwareCacheInterface $tagAwareCache
     ) {}
 
     /**
      * Returns a list of advices.
      *
      * @param Request $request
-     * @param TagAwareCacheInterface $tagAwareCache
-     *
      * @return JsonResponse
      *
      * @throws ExceptionInterface
      * @throws InvalidArgumentException
+     * @throws CacheException
      */
     #[Route('/api/conseils', name: 'app_advice', methods: ['GET'])]
-    public function index(Request $request, TagAwareCacheInterface $tagAwareCache): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $cacheId = 'advice_index_' . $request->get('page', 1) . '_' . $request->get('limit', AdviceRepository::MAX_PAGE);
 
-        $collect = $tagAwareCache->get($cacheId, function (ItemInterface $item) use ($request) {
+        $advices = $this->tagAwareCache->get($cacheId, function (ItemInterface $item) use ($request) {
             $item->tag('advice_index');
-            return $this->adviceRepository->all($request);
-        });
 
-        $advices = $this->serializer->serialize($collect, 'json');
+            return $this->serializer->serialize($this->adviceRepository->all(
+                $request),
+                'json', ['groups' => [AdviceEnum::ADVICE_LIST->value]]
+            );
+        });
 
         return new JsonResponse($advices, Response::HTTP_OK, [], true);
     }
@@ -54,15 +58,27 @@ final class AdviceController extends AbstractController
      * Returns a single advice by its ID.
      *
      * @param Advice $advice
-     *
      * @return JsonResponse
      *
-     * @throws ExceptionInterface
+     * @throws CacheException|ExceptionInterface|InvalidArgumentException
      */
     #[Route('/api/conseils/{id}', name: 'app_advice_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Advice $advice): JsonResponse
     {
-        $advice = $this->serializer->serialize($advice, 'json');
+        $cacheId = 'advice_show_' . $advice->getId();
+
+        // For development, use:
+        // $tagAwareCache->invalidateTags(['advice_show']);
+        // to clear the cache for this specific advice.
+
+        $advice = $this->tagAwareCache->get($cacheId, function (ItemInterface $item) use ($advice) {
+            $item->tag('advice_show');
+
+            return $this->serializer->serialize(
+                $this->adviceRepository->find($advice->getId()),
+                'json'
+            );
+        });
 
         return new JsonResponse($advice, Response::HTTP_OK, [], true);
     }
@@ -97,11 +113,22 @@ final class AdviceController extends AbstractController
         return $this->json(null, Response::HTTP_NOT_IMPLEMENTED);
     }
 
+    /**
+     * Deletes an advice by its ID.
+     *
+     * @param Advice $advice
+     *
+     * @return JsonResponse
+     *
+     * @throws InvalidArgumentException
+     */
     #[Route('/api/conseils/{id}', name: 'app_advice_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(Advice $advice): JsonResponse
     {
         $this->entityManager->remove($advice);
         $this->entityManager->flush();
+
+        $this->tagAwareCache->invalidateTags(['advice_index']);
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
