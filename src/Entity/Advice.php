@@ -6,7 +6,7 @@ use App\Enums\Serializer\AdviceEnum;
 use App\Repository\AdviceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
