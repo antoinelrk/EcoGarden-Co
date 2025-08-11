@@ -7,6 +7,7 @@ use App\Repository\AdviceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
+use phpDocumentor\Reflection\Types\Integer;
 
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
@@ -25,7 +26,7 @@ class Advice
     #[Groups([AdviceEnum::ADVICE_LIST->value, AdviceEnum::ADVICE_SHOW->value])]
     private ?string $description = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([AdviceEnum::ADVICE_LIST->value, AdviceEnum::ADVICE_SHOW->value])]
     private ?array $months = null;
 
