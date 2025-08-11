@@ -2,9 +2,12 @@
 
 namespace App\Entity;
 
+use App\Enums\Serializer\AdviceEnum;
 use App\Repository\AdviceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
+use phpDocumentor\Reflection\Types\Integer;
 
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
@@ -12,21 +15,27 @@ class Advice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups([AdviceEnum::ADVICE_LIST->value, AdviceEnum::ADVICE_SHOW->value])]
     private ?int $id = null;
 
     #[ORM\Column(length: 48)]
+    #[Groups([AdviceEnum::ADVICE_LIST->value, AdviceEnum::ADVICE_SHOW->value])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups([AdviceEnum::ADVICE_LIST->value, AdviceEnum::ADVICE_SHOW->value])]
     private ?string $description = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups([AdviceEnum::ADVICE_LIST->value, AdviceEnum::ADVICE_SHOW->value])]
     private ?array $months = null;
 
     #[ORM\Column]
+    #[Groups([AdviceEnum::ADVICE_LIST->value, AdviceEnum::ADVICE_SHOW->value])]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups([AdviceEnum::ADVICE_LIST->value, AdviceEnum::ADVICE_SHOW->value])]
     private ?\DateTimeImmutable $updated_at = null;
 
     public function getId(): ?int
