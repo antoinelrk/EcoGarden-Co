@@ -45,12 +45,14 @@ class AppFixtures extends Fixture
                 'username' => 'administrator',
                 'password' => 'P@ss1234',
                 'roles' => ['ROLE_ADMIN'],
+                'city' => 'Paris'
             ],
             [
                 'email' => 'user@ecogarden.co',
                 'username' => 'user',
                 'password' => 'P@ss1234',
                 'roles' => ['ROLE_USER'],
+                'city' => 'New York'
             ]
         ];
 
@@ -59,6 +61,7 @@ class AppFixtures extends Fixture
             $user->setEmail($userData['email'])
                 ->setRoles($userData['roles'])
                 ->setUsername($userData['username'])
+                ->setCity($userData['city'])
                 ->setPassword($this->passwordHasher->hashPassword($user, $userData['password']));
 
             $manager->persist($user);
