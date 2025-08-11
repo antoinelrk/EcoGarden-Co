@@ -22,3 +22,6 @@ make-migration:
 
 fixtures-load:
 	@docker exec -it eco_garden_co php bin/console doctrine:fixtures:load
+
+cache-clear:
+	@docker exec -it eco_garden_co php bin/console cache:clear
