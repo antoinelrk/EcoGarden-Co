@@ -2,41 +2,49 @@
 
 namespace App\Controller;
 
+use App\Enums\HttpMethodsEnum;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class WeatherController extends AbstractController
 {
-    public function __construct()
-    {
-        // Constructor logic if needed
-    }
+    private const string BASE_URL = 'https://api.openweathermap.org/data/2.5';
+
+    public function __construct(
+        private readonly TagAwareCacheInterface $tagAwareCache,
+        private readonly HttpClientInterface $httpClient,
+    ) {}
 
 
     #[Route('/api/meteo/{city?}', name: 'app_advice', methods: ['GET'])]
     public function meteo(Request $request, ?string $city): JsonResponse
     {
-        /**
-         * TODO: On récupère les données météo depuis une API externe à partie de la ville de l'utilisateur connecté.
-         *
-         */
-        // This method will handle the weather data retrieval and response
-        // For now, we can return a placeholder response
-        if ($city) {
-            // Here you would typically call an external weather API with the city name
-            // and return the weather data.
-            // For now, we return a placeholder response.
-            return $this->json([
-                'message' => 'Weather data for ' . $city,
-                'status' => 'success'
-            ]);
-        }
+        $city = $city ?? $this->getUser()->getCity();
+        $cacheId = 'weather_data_' . $city;
+
+        $data = $this->httpClient->request(
+            HttpMethodsEnum::GET->value,
+            self::BASE_URL . '/weather',
+            ['query' => [ 'q' => $city, 'appid' => $_ENV['WEATHER_API_KEY']]]
+        );
+
+        $data = $this->tagAwareCache->get($cacheId, function () use ($city) {
+            $data = $this->httpClient->request(
+                HttpMethodsEnum::GET->value,
+                self::BASE_URL . '/weather',
+                ['query' => [ 'q' => $city, 'appid' => $_ENV['WEATHER_API_KEY']]]
+            );
+
+            return $data->toArray();
+        });
 
         return $this->json([
-            'message' => 'Weather data is not yet implemented.',
-            'status' => 'info'
+            $data,
+            'status' => 'success'
         ]);
     }
 }
