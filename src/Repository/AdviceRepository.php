@@ -19,6 +19,7 @@ class AdviceRepository extends ServiceEntityRepository
     public function __construct(
         ManagerRegistry $registry,
         private readonly EntityManagerInterface $entityManager,
+        private readonly \JMS\Serializer\SerializerInterface $serializer,
     ) {
         parent::__construct($registry, Advice::class);
     }
@@ -41,7 +42,7 @@ class AdviceRepository extends ServiceEntityRepository
      *
      * @throws JsonException
      */
-    public function create(Request $request): Advice
+    public function create(Request $request): string
     {
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
