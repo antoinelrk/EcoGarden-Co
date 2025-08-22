@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class WeatherController extends AbstractController
+final class WeatherController extends AbstractController
 {
     private const string BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
