@@ -20,7 +20,7 @@ final class WeatherController extends AbstractController
     ) {}
 
 
-    #[Route('/api/meteo/{city?}', name: 'app_advice', methods: ['GET'])]
+    #[Route('/api/meteo/{city?}', name: 'app_weather', methods: ['GET'])]
     public function meteo(Request $request, ?string $city): JsonResponse
     {
         $city = $city ?? $this->getUser()->getCity();
