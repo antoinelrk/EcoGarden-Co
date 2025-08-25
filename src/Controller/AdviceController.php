@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Advice;
+use App\Enums\MonthEnum;
 use App\Enums\Serializer\AdviceEnum;
 use App\Repository\AdviceRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,6 +14,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use JMS\Serializer\SerializerInterface;
@@ -64,25 +67,30 @@ final class AdviceController extends AbstractController
     /**
      * Returns a single advice by its ID.
      *
-     * @param Advice $advice
+     * @param int $month
      * @return JsonResponse
      *
      * @throws CacheException|InvalidArgumentException
      */
-    #[Route('/api/conseils/{id}', name: 'app_advice_show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function show(Advice $advice): JsonResponse
+    #[Route('/api/conseils/{month}', name: 'app_advice_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function show(int $month): JsonResponse
     {
-        $cacheId = 'advice_show_' . $advice->getId();
+        // Validate month
+        if (!MonthEnum::getEnumByValue($month)) {
+            throw new UnprocessableEntityHttpException(sprintf('Mois invalide: %d (attendu 1..12)', $month));
+        }
+
+        $cacheId = 'advice_show_' . $month;
 
         // For development, use:
         // $this->tagAwareCache->invalidateTags(['advice_show']);
         // to clear the cache for this specific advice.
 
-        $advice = $this->tagAwareCache->get($cacheId, function (ItemInterface $item) use ($advice) {
+        $advice = $this->tagAwareCache->get($cacheId, function (ItemInterface $item) use ($month) {
             $item->tag('advice_show');
 
             return $this->serializer->serialize(
-                $this->adviceRepository->find($advice->getId()),
+                $this->adviceRepository->findByMonth($month),
                 'json'
             );
         });

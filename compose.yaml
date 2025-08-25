@@ -13,6 +13,9 @@ services:
       - local
 
 networks:
+  eco_garden_co_network:
+    name: eco_garden_co_network
+    external: true
   local:
     name: local
     external: true

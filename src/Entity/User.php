@@ -35,6 +35,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\Column(length: 32)]
+    private ?string $city = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -100,10 +103,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @param list<string> $roles
+     *
+     * return $this
      */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * Get the city for the user.
+     *
+     * @return string
+     */
+    public function getCity(): string
+    {
+        return $this->city;
+    }
+
+    /**
+     * Set the city for the user.
+     *
+     * @param string $city
+     *
+     * @return $this
+     */
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
 
         return $this;
     }

@@ -4,7 +4,9 @@ namespace App\Repository;
 
 use App\Entity\Advice;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use JsonException;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +21,7 @@ class AdviceRepository extends ServiceEntityRepository
     public function __construct(
         ManagerRegistry $registry,
         private readonly EntityManagerInterface $entityManager,
+        private readonly \JMS\Serializer\SerializerInterface $serializer,
     ) {
         parent::__construct($registry, Advice::class);
     }
@@ -41,7 +44,7 @@ class AdviceRepository extends ServiceEntityRepository
      *
      * @throws JsonException
      */
-    public function create(Request $request): Advice
+    public function create(Request $request): string
     {
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -60,28 +63,44 @@ class AdviceRepository extends ServiceEntityRepository
         return $this->serializer->serialize($advice, 'json');
     }
 
-//    /**
-//     * @return Advice[] Returns an array of Advice objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('a.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Finds advice by month.
+     *
+     * @param int $month
+     * @return array
+     */
+    public function findByMonth(int $month): array
+    {
+        // Pattern to match the month in the JSON array
+        $pattern = sprintf('(^|[^0-9])%d([^0-9]|$)', $month);
 
-//    public function findOneBySomeField($value): ?Advice
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        // Encode the pattern as a JSON array
+        $needle = json_encode([$pattern]);
+
+        // Use native SQL query to leverage PostgreSQL's JSONB capabilities
+        $em = $this->getEntityManager();
+
+        // ResultSetMappingBuilder to map the results to the Advice entity
+        $rsm = new ResultSetMappingBuilder($em);
+
+        // Add the entity mapping
+        $rsm->addRootEntityFromClassMetadata(Advice::class, 'a');
+
+        // Get the table name from metadata
+        $table = $this->getClassMetadata()->getTableName();
+
+        // Native SQL query using the @> operator to check if the months JSONB contains the specified month
+        $sql = <<<SQL
+                SELECT a.*
+                FROM {$table} a
+                WHERE (a.months::jsonb @> :needle::jsonb)
+                SQL;
+
+        // Create the native query
+        $query = $em->createNativeQuery($sql, $rsm);
+        $query->setParameter('needle', $needle);
+
+        // Execute the query and return the results
+        return $query->getResult();
+    }
 }

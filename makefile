@@ -1,5 +1,10 @@
-refresh:
-	@echo "Refreshing the database..."
+prepare:
+	@echo "Preparing the project..."
+	@docker-compose up -d --build
+	# TODO: Ajouter la copie des variables d'environnement
+
+setup:
+	@echo "Setup the project..."
 	@make create-db
 	@make schema-update
 	@make fixtures-load
