@@ -47,3 +47,9 @@ WEATHER_API_KEY="votre_cle_api"
 
 make setup
 ```
+
+Il existe 2 utilisateurs par défaut :
+
+- Admin : `admin@ecogarden.co` avec le mot de pass `P@ss1234`
+- User : `user@ecogarden.co` avec le mot de pass `P@ss1234`
+
