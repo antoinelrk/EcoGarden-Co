@@ -37,6 +37,11 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
+    /**
+     * Load predefined users into the database.
+     *
+     * @param ObjectManager $manager
+     */
     private function loadUsers(ObjectManager $manager): void
     {
         $users = [
