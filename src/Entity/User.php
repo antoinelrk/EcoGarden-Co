@@ -12,14 +12,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /**
+     * @var int|null
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * @var string|null
+     */
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
+    /**
+     * @var string|null
+     */
     #[ORM\Column(length: 64)]
     private ?string $username = null;
 
@@ -30,24 +39,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     /**
-     * @var string The hashed password
+     * @var string|null The hashed password
      */
     #[ORM\Column]
     private ?string $password = null;
 
+    /**
+     * @var string|null
+     */
     #[ORM\Column(length: 32)]
     private ?string $city = null;
 
+    /**
+     * Get the ID of the user.
+     *
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Get the email for the user.
+     *
+     * @return string|null
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * Set the email for the user.
+     *
+     * @param string $email
+     *
+     * @return $this
+     */
     public function setEmail(string $email): static
     {
         $this->email = $email;
@@ -138,13 +167,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * Get the hashed password for the user.
+     *
      * @see PasswordAuthenticatedUserInterface
+     *
+     * @return string|null The hashed password
      */
     public function getPassword(): ?string
     {
         return $this->password;
     }
 
+    /**
+     * Set the hashed password for the user.
+     *
+     * @param string $password The hashed password
+     *
+     * @return $this
+     */
     public function setPassword(string $password): static
     {
         $this->password = $password;
@@ -154,6 +194,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
+     *
+     * @return array<string, mixed>
      */
     public function __serialize(): array
     {
@@ -163,6 +205,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $data;
     }
 
+    /**
+     * This method is deprecated since Symfony 5.3 and will be removed in Symfony 8.0.
+     *
+     * @see UserInterface
+     */
     #[\Deprecated]
     public function eraseCredentials(): void
     {
