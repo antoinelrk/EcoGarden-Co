@@ -45,12 +45,6 @@ final class WeatherController extends AbstractController
         $city = $city ?? $this->getUser()->getCity();
         $cacheId = 'weather_data_' . $city;
 
-        $this->httpClient->request(
-            HttpMethodsEnum::GET->value,
-            self::BASE_URL . '/weather',
-            ['query' => [ 'q' => $city, 'appid' => $_ENV['WEATHER_API_KEY']]]
-        );
-
         $data = $this->tagAwareCache->get($cacheId, function () use ($city) {
             $data = $this->httpClient->request(
                 HttpMethodsEnum::GET->value,
