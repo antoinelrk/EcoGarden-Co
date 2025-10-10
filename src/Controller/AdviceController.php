@@ -86,7 +86,7 @@ final class AdviceController extends AbstractController
         // to clear the cache for this specific advice.
 
         $advice = $this->tagAwareCache->get($cacheId, function (ItemInterface $item) use ($month) {
-            $item->tag('advice_show');
+            $item->tag('advice_show' . $month);
 
             return $this->serializer->serialize(
                 $this->adviceRepository->findByMonth($month),

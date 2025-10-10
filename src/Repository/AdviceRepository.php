@@ -70,17 +70,8 @@ class AdviceRepository extends ServiceEntityRepository
      */
     public function findByMonth(int $month): array
     {
-        // Pattern to match the month in the JSON array
-        $pattern = sprintf('(^|[^0-9])%d([^0-9]|$)', $month);
-
-        // Encode the pattern as a JSON array
-        $needle = json_encode([$pattern]);
-
-        // Use native SQL query to leverage PostgreSQL's JSONB capabilities
-        $em = $this->getEntityManager();
-
-        // ResultSetMappingBuilder to map the results to the Advice entity
-        $rsm = new ResultSetMappingBuilder($em);
+        // Use the entity manager to create a native SQL query
+        $rsm = new ResultSetMappingBuilder($this->entityManager);
 
         // Add the entity mapping
         $rsm->addRootEntityFromClassMetadata(Advice::class, 'a');
@@ -88,18 +79,24 @@ class AdviceRepository extends ServiceEntityRepository
         // Get the table name from metadata
         $table = $this->getClassMetadata()->getTableName();
 
-        // Native SQL query using the @> operator to check if the months JSONB contains the specified month
+        // Define the SQL query
         $sql = <<<SQL
-                SELECT a.*
-                FROM {$table} a
-                WHERE (a.months::jsonb @> :needle::jsonb)
-                SQL;
+            SELECT a.*
+            FROM {$table} a
+            WHERE EXISTS (
+                SELECT 1
+                FROM jsonb_array_elements_text(a.months::jsonb) AS m(val)
+                WHERE CASE
+                    WHEN m.val ~ '^\s*\d{1,2}\s*$' THEN (m.val)::int = :month
+                    ELSE FALSE
+                END
+            )
+        SQL;
 
         // Create the native query
-        $query = $em->createNativeQuery($sql, $rsm);
-        $query->setParameter('needle', $needle);
+        $query = $this->entityManager->createNativeQuery($sql, $rsm);
+        $query->setParameter('month', $month);
 
-        // Execute the query and return the results
         return $query->getResult();
     }
 }
